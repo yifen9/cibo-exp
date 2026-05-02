@@ -1,0 +1,305 @@
+name: exp_10
+description: CIBO-GT observation and topology stress test run
+
+run:
+  seeds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  steps: 360
+  record_interval: 1
+
+canvas:
+  height: 32
+  width: 32
+
+target:
+  type: boundary
+  top: 8
+  left: 8
+  height: 16
+  width: 16
+  thickness: 1
+
+mechanism:
+  theta_repair: 0.75
+  theta_preserve: 0.25
+  k: 4
+  m: 3
+  suppression: 0.5
+  trace_duration: 8
+  trace_decay: 0.875
+
+default:
+  radius: 1
+  density: 0.09375
+  update_mode: synchronous
+  async_fraction: 0.5
+  feedback_delay: 0
+  topology: grid_local
+  perturbation: random_target_deletion
+
+perturbation:
+  random_delete_time: 120
+  random_delete_fraction: 0.20
+  drift_times: [80, 120, 160, 200, 240]
+  drift_block_size: 5
+  drift_centers:
+    - [8, 10]
+    - [8, 13]
+    - [8, 16]
+    - [8, 19]
+    - [8, 22]
+
+metrics:
+  saturation_threshold: 0.9
+  target_damage_threshold: 0.75
+  recovery_threshold: 0.8
+  strong_tpr_threshold: 0.90
+  strong_fpr_threshold: 0.20
+  strict_tpr_threshold: 0.95
+  strict_fpr_threshold: 0.10
+
+conditions:
+  - id: A_R1
+    group: A
+    variable: radius
+    radius: 1
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: A_R2
+    group: A
+    variable: radius
+    radius: 2
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: A_R3
+    group: A
+    variable: radius
+    radius: 3
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: A_R4
+    group: A
+    variable: radius
+    radius: 4
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: B_D002
+    group: B
+    variable: density
+    radius: 1
+    density: 0.02
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: B_D005
+    group: B
+    variable: density
+    radius: 1
+    density: 0.05
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: B_D010
+    group: B
+    variable: density
+    radius: 1
+    density: 0.10
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: B_D020
+    group: B
+    variable: density
+    radius: 1
+    density: 0.20
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: C_SYNC
+    group: C
+    variable: update_mode
+    radius: 1
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: C_ASYNC_RANDOM
+    group: C
+    variable: update_mode
+    radius: 1
+    density: 0.09375
+    update_mode: random_async
+    async_fraction: 0.5
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: C_ASYNC_SEQ
+    group: C
+    variable: update_mode
+    radius: 1
+    density: 0.09375
+    update_mode: sequential_async
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: D_DELAY0
+    group: D
+    variable: feedback_delay
+    radius: 1
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: D_DELAY1
+    group: D
+    variable: feedback_delay
+    radius: 1
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 1
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: D_DELAY2
+    group: D
+    variable: feedback_delay
+    radius: 1
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 2
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: D_DELAY4
+    group: D
+    variable: feedback_delay
+    radius: 1
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 4
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: D_DELAY8
+    group: D
+    variable: feedback_delay
+    radius: 1
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 8
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: E_GRID
+    group: E
+    variable: topology
+    radius: 1
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: random_target_deletion
+
+  - id: E_RANDOM_LOCAL
+    group: E
+    variable: topology
+    radius: 1
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: random_local
+    perturbation: random_target_deletion
+
+  - id: E_SMALL_WORLD
+    group: E
+    variable: topology
+    radius: 1
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: small_world
+    perturbation: random_target_deletion
+
+  - id: E_RANDOM_GLOBAL
+    group: E
+    variable: topology
+    radius: 1
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: random_global
+    perturbation: random_target_deletion
+
+  - id: E_COMPONENT_LOCAL
+    group: E
+    variable: topology
+    radius: 1
+    density: 0.09375
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: component_local
+    perturbation: random_target_deletion
+
+  - id: F_DRIFT_R2_D005
+    group: F
+    variable: drifting_rescue
+    radius: 2
+    density: 0.05
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: drifting_damage
+
+  - id: F_DRIFT_R3_D010
+    group: F
+    variable: drifting_rescue
+    radius: 3
+    density: 0.10
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: drifting_damage
+
+  - id: F_DRIFT_R4_D020
+    group: F
+    variable: drifting_rescue
+    radius: 4
+    density: 0.20
+    update_mode: synchronous
+    feedback_delay: 0
+    topology: grid_local
+    perturbation: drifting_damage
+
+output:
+  root: data/tests/exp_10
+  save_final_snapshot: false
+  make_plot: true
