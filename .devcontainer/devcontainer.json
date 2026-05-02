@@ -1,0 +1,16 @@
+{
+  "dockerComposeFile": "docker-compose.yaml",
+  "service": "cibo-exp-dev",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "jeff-hykin.better-dockerfile-syntax",
+        "ms-python.python",
+        "tamasfe.even-better-toml",
+        "nefrob.vscode-just-syntax"
+      ]
+    }
+  }
+}

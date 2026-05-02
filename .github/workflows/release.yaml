@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g. 0.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yaml
+
+  release:
+    needs: ci
+    runs-on: ubuntu-latest
+    env:
+      UV_PYTHON: "3.11"
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - run: uv python install ${{ env.UV_PYTHON }}
+
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y just
+
+      - run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          v = "${{ inputs.version }}".strip()
+          if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z]+)*", v):
+              raise SystemExit(f"invalid version: {v}")
+
+          p = Path("pyproject.toml")
+          s = p.read_text(encoding="utf-8")
+          s2, n = re.subn(r'(?m)^version\s*=\s*"(.*?)"\s*$', f'version = "{v}"', s, count=1)
+          if n != 1:
+              raise SystemExit("failed to update version line in pyproject.toml")
+          p.write_text(s2, encoding="utf-8")
+          PY
+
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pyproject.toml
+          git commit -m "release: v${{ inputs.version }}"
+          git tag "v${{ inputs.version }}"
+          git push origin HEAD:main --follow-tags
+
+      - run: |
+          rm -rf dist
+          uv build --out-dir ../../dist
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ inputs.version }}
+          name: v${{ inputs.version }}
+          files: dist/*
+          generate_release_notes: true
