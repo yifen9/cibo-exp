@@ -1,0 +1,141 @@
+name: exp_03
+description: CIBO-Canvas preservation-suppression balance test run
+
+run:
+  seeds: [42]
+  steps: 260
+  record_interval: 1
+
+canvas:
+  height: 32
+  width: 32
+
+target:
+  type: boundary
+  top: 8
+  left: 8
+  height: 16
+  width: 16
+  thickness: 1
+
+operator:
+  count: 96
+  radius: 1
+  move: random_walk
+  birth_threshold: 2
+  survive_min: 1
+  survive_max: 3
+  l2_memory_steps: 3
+
+trace:
+  duration: 8
+  decay: 0.875
+
+perturbation:
+  type: random_noise
+  time: 100
+  strength: 0.06
+  scope: all
+
+metrics:
+  saturation_threshold: 0.9
+  target_damage_threshold: 0.75
+  recovery_threshold: 0.8
+
+conditions:
+  - id: A0
+    group: A
+    operator: l1
+    action_space: flip_stay
+    suppression: 0.0
+
+  - id: B025
+    group: B
+    operator: l1s
+    action_space: flip_stay
+    suppression: 0.25
+  - id: B050
+    group: B
+    operator: l1s
+    action_space: flip_stay
+    suppression: 0.5
+  - id: B075
+    group: B
+    operator: l1s
+    action_space: flip_stay
+    suppression: 0.75
+  - id: B100
+    group: B
+    operator: l1s
+    action_space: flip_stay
+    suppression: 1.0
+
+  - id: C025
+    group: C
+    operator: l1c
+    action_space: write
+    suppression: 0.25
+  - id: C050
+    group: C
+    operator: l1c
+    action_space: write
+    suppression: 0.5
+  - id: C075
+    group: C
+    operator: l1c
+    action_space: write
+    suppression: 0.75
+  - id: C100
+    group: C
+    operator: l1c
+    action_space: write
+    suppression: 1.0
+
+  - id: D025
+    group: D
+    operator: l2s
+    action_space: flip_stay
+    suppression: 0.25
+  - id: D050
+    group: D
+    operator: l2s
+    action_space: flip_stay
+    suppression: 0.5
+  - id: D075
+    group: D
+    operator: l2s
+    action_space: flip_stay
+    suppression: 0.75
+  - id: D100
+    group: D
+    operator: l2s
+    action_space: flip_stay
+    suppression: 1.0
+
+  - id: E025
+    group: E
+    operator: l2s
+    action_space: write
+    suppression: 0.25
+  - id: E050
+    group: E
+    operator: l2s
+    action_space: write
+    suppression: 0.5
+  - id: E075
+    group: E
+    operator: l2s
+    action_space: write
+    suppression: 0.75
+  - id: E100
+    group: E
+    operator: l2s
+    action_space: write
+    suppression: 1.0
+
+output:
+  root: data/tests/exp_03
+  save_initial_snapshot: true
+  save_perturbation_snapshot: true
+  save_final_snapshot: true
+  make_plot: true
