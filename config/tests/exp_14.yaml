@@ -1,0 +1,136 @@
+name: exp_14
+description: CIBO-ED evolutionary discovery of functional scaffolds test run
+
+run:
+  train_seeds: [1, 2, 3]
+  test_seeds: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+  steps: 300
+  record_interval: 1
+
+canvas:
+  height: 32
+  width: 32
+
+operator:
+  count: 96
+  radius: 1
+  move: random_walk
+  suppression: 0.5
+  theta_preserve: 0.25
+
+trace:
+  duration: 8
+  decay: 0.875
+
+repair:
+  mechanism: sliding
+  theta_repair: 0.75
+  k: 4
+  m: 3
+  w_local: 0.35
+  w_bridge: 0.35
+  w_marker: 0.25
+  w_direction: 0.15
+  w_cost: 0.25
+
+evolution:
+  population_size: 24
+  generations: 20
+  elite_count: 4
+  mutation_rate: 0.10
+  tournament_size: 3
+  random_baseline_samples: 24
+
+fitness:
+  lambda_connectivity: 2.0
+  lambda_stability: 1.0
+  lambda_cost: 0.5
+  lambda_outside: 1.0
+  lambda_false: 0.5
+  lambda_complexity: 0.15
+
+metrics:
+  strong_connectivity_threshold: 0.90
+  strong_cost_factor: 1.50
+  strict_connectivity_threshold: 0.95
+  strict_cost_factor: 1.25
+  strict_outside_open_rate: 0.05
+
+conditions:
+  - id: A_T1_RANDOM
+    group: A
+    task: T1
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    genome_type: random_search
+    damage_time: 120
+    cut_length: 5
+    noise_stress: false
+
+  - id: B_T1_WIDTH
+    group: B
+    task: T1
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    genome_type: width_only
+    damage_time: 120
+    cut_length: 5
+    noise_stress: false
+
+  - id: C_T1_FULL
+    group: C
+    task: T1
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    genome_type: full
+    damage_time: 120
+    cut_length: 5
+    noise_stress: false
+
+  - id: D_T2_RANDOM
+    group: D
+    task: T2
+    path_type: double_path
+    perturbation_type: bridge_cut
+    genome_type: random_search
+    damage_time: 120
+    cut_length: 7
+    noise_stress: false
+
+  - id: E_T2_PARTIAL
+    group: E
+    task: T2
+    path_type: double_path
+    perturbation_type: bridge_cut
+    genome_type: marker_direction_cost
+    damage_time: 120
+    cut_length: 7
+    noise_stress: false
+
+  - id: F_T2_FULL
+    group: F
+    task: T2
+    path_type: double_path
+    perturbation_type: bridge_cut
+    genome_type: full
+    damage_time: 120
+    cut_length: 7
+    noise_stress: false
+
+  - id: G_T2_FULL_NOISE
+    group: G
+    task: T2
+    path_type: double_path
+    perturbation_type: bridge_cut
+    genome_type: full
+    damage_time: 120
+    cut_length: 7
+    noise_stress: true
+    sigma: 0.10
+    rho: 0.00
+
+output:
+  root: data/tests/exp_14
+  save_best_genome: true
+  save_final_snapshot: false
+  make_plot: true
