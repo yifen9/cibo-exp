@@ -1,0 +1,257 @@
+name: exp_06
+description: CIBO-Canvas temporal repair calibration test run
+
+run:
+  seeds: [42]
+  steps: 320
+  record_interval: 1
+
+canvas:
+  height: 32
+  width: 32
+
+target:
+  type: boundary
+  top: 8
+  left: 8
+  height: 16
+  width: 16
+  thickness: 1
+
+operator:
+  count: 96
+  radius: 1
+  move: random_walk
+  support: hybrid
+  suppression: 0.5
+  theta_preserve: 0.25
+  repair_budget_ratio: 0.12
+  l2_memory_steps: 3
+
+trace:
+  duration: 8
+  decay: 0.875
+
+perturbation:
+  schedule:
+    - type: random_noise
+      time: 80
+      strength: 0.03
+      scope: all
+    - type: local_gap_attack
+      time: 140
+      length: 8
+      side: top
+
+metrics:
+  saturation_threshold: 0.9
+  target_damage_threshold: 0.75
+  recovery_threshold: 0.8
+
+conditions:
+  - id: A075K1
+    group: A
+    operator: l1sgt
+    mechanism: consecutive
+    theta_repair: 0.75
+    k: 1
+    m: 1
+    gamma: 0.0
+    budget: false
+
+  - id: A075K2
+    group: A
+    operator: l1sgt
+    mechanism: consecutive
+    theta_repair: 0.75
+    k: 2
+    m: 2
+    gamma: 0.0
+    budget: false
+
+  - id: A075K3
+    group: A
+    operator: l1sgt
+    mechanism: consecutive
+    theta_repair: 0.75
+    k: 3
+    m: 3
+    gamma: 0.0
+    budget: false
+
+  - id: B070K1
+    group: B
+    operator: l1sgt
+    mechanism: consecutive
+    theta_repair: 0.70
+    k: 1
+    m: 1
+    gamma: 0.0
+    budget: false
+
+  - id: B070K2
+    group: B
+    operator: l1sgt
+    mechanism: consecutive
+    theta_repair: 0.70
+    k: 2
+    m: 2
+    gamma: 0.0
+    budget: false
+
+  - id: B070K3
+    group: B
+    operator: l1sgt
+    mechanism: consecutive
+    theta_repair: 0.70
+    k: 3
+    m: 3
+    gamma: 0.0
+    budget: false
+
+  - id: C075W12
+    group: C
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.75
+    k: 2
+    m: 1
+    gamma: 0.0
+    budget: false
+
+  - id: C075W23
+    group: C
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.75
+    k: 3
+    m: 2
+    gamma: 0.0
+    budget: false
+
+  - id: C075W34
+    group: C
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.75
+    k: 4
+    m: 3
+    gamma: 0.0
+    budget: false
+
+  - id: D070W12
+    group: D
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.70
+    k: 2
+    m: 1
+    gamma: 0.0
+    budget: false
+
+  - id: D070W23
+    group: D
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.70
+    k: 3
+    m: 2
+    gamma: 0.0
+    budget: false
+
+  - id: D070W34
+    group: D
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.70
+    k: 4
+    m: 3
+    gamma: 0.0
+    budget: false
+
+  - id: E075D05
+    group: E
+    operator: l1sgtd
+    mechanism: decay
+    theta_repair: 0.75
+    k: 0
+    m: 0
+    gamma: 0.50
+    budget: false
+
+  - id: E075D07
+    group: E
+    operator: l1sgtd
+    mechanism: decay
+    theta_repair: 0.75
+    k: 0
+    m: 0
+    gamma: 0.70
+    budget: false
+
+  - id: E075D09
+    group: E
+    operator: l1sgtd
+    mechanism: decay
+    theta_repair: 0.75
+    k: 0
+    m: 0
+    gamma: 0.90
+    budget: false
+
+  - id: F070D05
+    group: F
+    operator: l1sgtd
+    mechanism: decay
+    theta_repair: 0.70
+    k: 0
+    m: 0
+    gamma: 0.50
+    budget: false
+
+  - id: F070D07
+    group: F
+    operator: l1sgtd
+    mechanism: decay
+    theta_repair: 0.70
+    k: 0
+    m: 0
+    gamma: 0.70
+    budget: false
+
+  - id: F070D09
+    group: F
+    operator: l1sgtd
+    mechanism: decay
+    theta_repair: 0.70
+    k: 0
+    m: 0
+    gamma: 0.90
+    budget: false
+
+  - id: G075K2B
+    group: G
+    operator: l1sgtb
+    mechanism: consecutive
+    theta_repair: 0.75
+    k: 2
+    m: 2
+    gamma: 0.0
+    budget: true
+
+  - id: H075K2L2
+    group: H
+    operator: l2sgt
+    mechanism: consecutive
+    theta_repair: 0.75
+    k: 2
+    m: 2
+    gamma: 0.0
+    budget: false
+
+output:
+  root: data/tests/exp_06
+  save_initial_snapshot: true
+  save_perturbation_snapshot: true
+  save_final_snapshot: true
+  make_plot: true
