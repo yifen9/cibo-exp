@@ -1,0 +1,94 @@
+name: exp_02
+description: CIBO-Canvas trace decay and false-positive suppression test run
+
+run:
+  seeds: [42]
+  steps: 240
+  record_interval: 1
+
+canvas:
+  height: 32
+  width: 32
+
+target:
+  type: horizontal_line
+  row: 16
+  thickness: 1
+
+operator:
+  count: 64
+  radius: 1
+  move: random_walk
+  l1:
+    birth_threshold: 2
+    death_threshold: 0
+  l1s:
+    birth_min: 2
+    birth_max: 2
+    survive_min: 1
+    survive_max: 3
+  l2:
+    birth_min: 2
+    birth_max: 2
+    survive_min: 1
+    survive_max: 3
+    refractory_steps: 1
+
+trace:
+  durations:
+    none: 0
+    short: 2
+    medium: 8
+    long: 32
+    permanent: -1
+
+perturbation:
+  type: random_noise
+  time: 100
+  strength: 0.08
+  scope: all
+
+metrics:
+  saturation_threshold: 0.9
+  recovery_threshold: 0.95
+
+conditions:
+  - id: A
+    trace: permanent
+    operator: l1
+    action_space: flip_stay
+  - id: B
+    trace: short
+    operator: l1
+    action_space: flip_stay
+  - id: C
+    trace: medium
+    operator: l1
+    action_space: flip_stay
+  - id: D
+    trace: long
+    operator: l1
+    action_space: flip_stay
+  - id: E
+    trace: medium
+    operator: l1s
+    action_space: flip_stay
+  - id: F
+    trace: medium
+    operator: l1s
+    action_space: write
+  - id: G
+    trace: medium
+    operator: l2
+    action_space: flip_stay
+  - id: H
+    trace: none
+    operator: l1
+    action_space: flip_stay
+
+output:
+  root: data/tests/exp_02
+  save_initial_snapshot: true
+  save_perturbation_snapshot: true
+  save_final_snapshot: true
+  make_plot: true

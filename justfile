@@ -62,3 +62,6 @@ docs-serve:
 
 s-t-exp-01:
     uv run python scripts/tests/exp_01.py
+
+s-t-exp-02:
+    uv run python scripts/tests/exp_02.py
