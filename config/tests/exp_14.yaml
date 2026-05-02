@@ -1,6 +1,10 @@
 name: exp_14
 description: CIBO-ED evolutionary discovery of functional scaffolds test run
 
+parallel:
+  workers: 16
+  backend: process
+
 run:
   train_seeds: [1, 2, 3]
   test_seeds: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]

@@ -1,8 +1,9 @@
 from pathlib import Path
-from collections import defaultdict, deque
-from statistics import mean, variance
+from collections import defaultdict
+from statistics import mean
+from concurrent.futures import ProcessPoolExecutor
 import importlib.util
-import math
+import hashlib
 
 import numpy as np
 
@@ -18,8 +19,16 @@ from cibo_pycore.utils.progress import Progress
 from cibo_pycore.utils.versioner import build_version_dir
 
 
+_WORKER_EXP11 = None
+
+
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
+
+
+def stable_seed(text: str) -> int:
+    h = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    return int(h[:8], 16)
 
 
 def load_module(path: Path, name: str):
@@ -33,6 +42,12 @@ def load_exp11(root: Path):
     return load_module(
         root / "scripts" / "tests" / "exp_11.py", "cibo_exp_11_runtime_for_exp_14"
     )
+
+
+def init_worker(root_text: str) -> None:
+    global _WORKER_EXP11
+    root = Path(root_text)
+    _WORKER_EXP11 = load_exp11(root)
 
 
 def genome_keys() -> list[str]:
@@ -152,26 +167,6 @@ def crossover(a: dict, b: dict, rng: np.random.Generator) -> dict:
     return {k: a[k] if rng.random() < 0.5 else b[k] for k in genome_keys()}
 
 
-def draw_segment(
-    canvas: np.ndarray, a: tuple[int, int], b: tuple[int, int], width: int = 1
-) -> None:
-    x0, y0 = a
-    x1, y1 = b
-
-    if x0 == x1:
-        lo = min(y0, y1)
-        hi = max(y0, y1)
-        for x in range(x0 - width // 2, x0 + width // 2 + 1):
-            if 0 <= x < canvas.shape[0]:
-                canvas[x, lo : hi + 1] = 1
-    elif y0 == y1:
-        lo = min(x0, x1)
-        hi = max(x0, x1)
-        for y in range(y0 - width // 2, y0 + width // 2 + 1):
-            if 0 <= y < canvas.shape[1]:
-                canvas[lo : hi + 1, y] = 1
-
-
 def thicken(
     mask: np.ndarray, radius: int, prob: float, shape: int, rng: np.random.Generator
 ) -> np.ndarray:
@@ -180,9 +175,7 @@ def thicken(
     if radius <= 0 or prob <= 0:
         return out
 
-    cells = np.argwhere(mask == 1)
-
-    for x, y in cells:
+    for x, y in np.argwhere(mask == 1):
         if rng.random() > prob:
             continue
 
@@ -205,9 +198,15 @@ def thicken(
     return out
 
 
-def bridge_center_cells(reference: np.ndarray, count: int) -> list[tuple[int, int]]:
+def bridge_center_cells(
+    reference: np.ndarray, count: int, offset: int = 0
+) -> list[tuple[int, int]]:
     cells = np.argwhere(reference == 1)
-    center = np.array([reference.shape[0] // 2, reference.shape[1] // 2])
+
+    if len(cells) == 0:
+        return []
+
+    center = np.array([reference.shape[0] // 2, reference.shape[1] // 2 + offset])
     distances = np.sum((cells - center) ** 2, axis=1)
     order = np.argsort(distances)
     selected = cells[order[: min(count, len(cells))]]
@@ -444,21 +443,13 @@ def move_operators(
 def bridge_cut(
     canvas: np.ndarray, reference: np.ndarray, condition: dict, offset: int = 0
 ) -> int:
-    cells = np.argwhere(reference == 1)
-
-    if len(cells) == 0:
-        return 0
-
-    center = np.array([reference.shape[0] // 2, reference.shape[1] // 2 + offset])
-    distances = np.sum((cells - center) ** 2, axis=1)
-    order = np.argsort(distances)
-    selected = cells[order[: min(int(condition["cut_length"]), len(cells))]]
+    cells = bridge_center_cells(reference, int(condition["cut_length"]), offset=offset)
     changed = 0
 
-    for x, y in selected:
-        if int(canvas[int(x), int(y)]) == 1:
+    for x, y in cells:
+        if int(canvas[x, y]) == 1:
             changed += 1
-        canvas[int(x), int(y)] = 0
+        canvas[x, y] = 0
 
     return int(changed)
 
@@ -558,14 +549,6 @@ def classify_open(before: np.ndarray, reference: np.ndarray, x: int, y: int) -> 
     return "non_open"
 
 
-def classify_close(before: np.ndarray, reference: np.ndarray, x: int, y: int) -> str:
-    if int(before[x, y]) == 1 and int(reference[x, y]) == 0:
-        return "true_close"
-    if int(before[x, y]) == 1 and int(reference[x, y]) == 1:
-        return "false_close"
-    return "non_close"
-
-
 def compute_metrics(
     exp11,
     canvas: np.ndarray,
@@ -645,9 +628,16 @@ def run_trial(
                 )
 
                 if noise:
-                    support = float(np.clip(support + rng.normal(0.0, 0.10), 0.0, 1.0))
+                    support = float(
+                        np.clip(
+                            support
+                            + rng.normal(0.0, float(condition.get("sigma", 0.10))),
+                            0.0,
+                            1.0,
+                        )
+                    )
 
-                temporal_pass, temporal_score = update_sliding(
+                temporal_pass, _ = update_sliding(
                     history,
                     support,
                     float(cfg["repair"]["theta_repair"]),
@@ -695,6 +685,7 @@ def run_trial(
         "final_open_cost_factor": float(final["open_cost_factor"]),
         "mean_open_cost_factor": float(mean(open_cost_factors)),
         "final_outside_open_rate": float(final["outside_open_rate"]),
+        "mean_outside_open_rate": float(mean(outside_rates)),
         "final_false_corridor_count": int(final["false_corridor_count"]),
         "mean_false_corridor_count": float(mean(false_counts)),
         "final_path_tpr": float(final["path_tpr"]),
@@ -706,7 +697,6 @@ def run_trial(
         else 0.0,
         "applied_total": int(applied_total),
         "scaffold_complexity": scaffold_complexity(genome),
-        "canvas": canvas.astype(int).tolist(),
     }
 
 
@@ -743,7 +733,7 @@ def fitness(trials: list[dict], cfg: dict) -> float:
     )
 
 
-def evaluate_genome(
+def evaluate_genome_with_exp11(
     exp11,
     cfg: dict,
     condition: dict,
@@ -783,6 +773,25 @@ def evaluate_genome(
     }
 
 
+def evaluate_genome_worker(args: tuple) -> dict:
+    cfg, condition, genome, seeds, noise = args
+    return evaluate_genome_with_exp11(
+        _WORKER_EXP11, cfg, condition, genome, seeds, noise
+    )
+
+
+def evaluate_population_process(
+    executor: ProcessPoolExecutor,
+    cfg: dict,
+    condition: dict,
+    population: list[dict],
+    seeds: list[int],
+    noise: bool,
+) -> list[dict]:
+    jobs = [(cfg, condition, genome, seeds, noise) for genome in population]
+    return list(executor.map(evaluate_genome_worker, jobs, chunksize=1))
+
+
 def tournament(
     pop: list[dict], scores: list[float], size: int, rng: np.random.Generator
 ) -> dict:
@@ -791,10 +800,50 @@ def tournament(
     return pop[int(best)]
 
 
-def evolve_condition(
-    exp11, cfg: dict, condition: dict, run_dir: Path, logger: Logger, progress: Progress
+def random_search_reference(
+    executor: ProcessPoolExecutor,
+    cfg: dict,
+    condition: dict,
+    seeds: list[int],
+    rng: np.random.Generator,
+    noise: bool,
 ) -> dict:
-    rng = np.random.default_rng(abs(hash(str(condition["id"]))) % (2**32))
+    samples = int(cfg["evolution"]["random_baseline_samples"])
+    genome_type = str(condition["genome_type"])
+    candidates = [random_genome(genome_type, rng) for _ in range(samples)]
+    evaluations = evaluate_population_process(
+        executor, cfg, condition, candidates, seeds, noise
+    )
+    best_idx = max(
+        range(len(evaluations)), key=lambda i: float(evaluations[i]["fitness"])
+    )
+    best = evaluations[best_idx]
+    best["genome"] = candidates[best_idx]
+    return best
+
+
+def evaluate_single_process(
+    executor: ProcessPoolExecutor,
+    cfg: dict,
+    condition: dict,
+    genome: dict,
+    seeds: list[int],
+    noise: bool,
+) -> dict:
+    return evaluate_population_process(
+        executor, cfg, condition, [genome], seeds, noise
+    )[0]
+
+
+def evolve_condition(
+    cfg: dict,
+    condition: dict,
+    root: Path,
+    run_dir: Path,
+    logger: Logger,
+    progress: Progress,
+) -> dict:
+    rng = np.random.default_rng(stable_seed(str(condition["id"])))
     evo = cfg["evolution"]
     pop_size = int(evo["population_size"])
     generations = int(evo["generations"])
@@ -804,6 +853,7 @@ def evolve_condition(
     train_seeds = [int(x) for x in cfg["run"]["train_seeds"]]
     test_seeds = [int(x) for x in cfg["run"]["test_seeds"]]
     noise = bool(condition.get("noise_stress", False))
+    workers = int(cfg["parallel"]["workers"])
 
     population = [random_genome(genome_type, rng) for _ in range(pop_size)]
     history_rows = []
@@ -812,69 +862,74 @@ def evolve_condition(
     condition_dir = run_dir / "conditions" / str(condition["id"])
     condition_dir.mkdir(parents=True, exist_ok=True)
 
-    for gen in range(generations):
-        evaluations = [
-            evaluate_genome(exp11, cfg, condition, g, train_seeds, noise=noise)
-            for g in population
-        ]
-        scores = [float(x["fitness"]) for x in evaluations]
-        order = sorted(range(len(population)), key=lambda i: scores[i], reverse=True)
-        best_idx = order[0]
-        mean_fit = float(mean(scores))
-        best_fit = float(scores[best_idx])
-        best_eval = evaluations[best_idx]
-
-        if best_record is None or best_fit > float(best_record["train"]["fitness"]):
-            best_record = {
-                "generation": int(gen),
-                "genome": dict(population[best_idx]),
-                "train": best_eval,
-            }
-
-        history_rows.append(
-            [
-                int(gen),
-                best_fit,
-                mean_fit,
-                float(best_eval["mean_final_connectivity"]),
-                float(best_eval["mean_stability"]),
-                float(best_eval["mean_cost"]),
-                float(best_eval["mean_outside"]),
-                float(best_eval["mean_false"]),
-                float(scaffold_complexity(population[best_idx])),
-            ]
-        )
-
-        logger.info(
-            jline(
-                "evolution",
-                str(condition["id"]),
-                "generation",
-                generation=int(gen),
-                best_fitness=best_fit,
-                mean_fitness=mean_fit,
+    with ProcessPoolExecutor(
+        max_workers=workers, initializer=init_worker, initargs=(str(root),)
+    ) as executor:
+        for gen in range(generations):
+            evaluations = evaluate_population_process(
+                executor, cfg, condition, population, train_seeds, noise
             )
+            scores = [float(x["fitness"]) for x in evaluations]
+            order = sorted(
+                range(len(population)), key=lambda i: scores[i], reverse=True
+            )
+            best_idx = order[0]
+            mean_fit = float(mean(scores))
+            best_fit = float(scores[best_idx])
+            best_eval = evaluations[best_idx]
+
+            if best_record is None or best_fit > float(best_record["train"]["fitness"]):
+                best_record = {
+                    "generation": int(gen),
+                    "genome": dict(population[best_idx]),
+                    "train": best_eval,
+                }
+
+            history_rows.append(
+                [
+                    int(gen),
+                    best_fit,
+                    mean_fit,
+                    float(best_eval["mean_final_connectivity"]),
+                    float(best_eval["mean_stability"]),
+                    float(best_eval["mean_cost"]),
+                    float(best_eval["mean_outside"]),
+                    float(best_eval["mean_false"]),
+                    float(scaffold_complexity(population[best_idx])),
+                ]
+            )
+
+            logger.info(
+                jline(
+                    "evolution",
+                    str(condition["id"]),
+                    "generation",
+                    generation=int(gen),
+                    best_fitness=best_fit,
+                    mean_fitness=mean_fit,
+                )
+            )
+
+            elites = [population[i] for i in order[:elite_count]]
+            next_pop = [dict(x) for x in elites]
+
+            while len(next_pop) < pop_size:
+                a = tournament(population, scores, int(evo["tournament_size"]), rng)
+                b = tournament(population, scores, int(evo["tournament_size"]), rng)
+                child = crossover(a, b, rng)
+                child = mutate_genome(child, genome_type, mutation_rate, rng)
+                next_pop.append(child)
+
+            population = next_pop
+            progress.step(1)
+
+        test_eval = evaluate_single_process(
+            executor, cfg, condition, best_record["genome"], test_seeds, noise
+        )
+        random_eval = random_search_reference(
+            executor, cfg, condition, test_seeds, rng, noise
         )
 
-        elites = [population[i] for i in order[:elite_count]]
-        next_pop = [dict(x) for x in elites]
-
-        while len(next_pop) < pop_size:
-            a = tournament(population, scores, int(evo["tournament_size"]), rng)
-            b = tournament(population, scores, int(evo["tournament_size"]), rng)
-            child = crossover(a, b, rng)
-            child = mutate_genome(child, genome_type, mutation_rate, rng)
-            next_pop.append(child)
-
-        population = next_pop
-        progress.step(1)
-
-    test_eval = evaluate_genome(
-        exp11, cfg, condition, best_record["genome"], test_seeds, noise=noise
-    )
-    random_eval = random_search_reference(
-        exp11, cfg, condition, test_seeds, rng, noise=noise
-    )
     best_record["test"] = test_eval
     best_record["random_reference"] = random_eval
 
@@ -899,28 +954,6 @@ def evolve_condition(
     write_json(str(condition_dir / "summary.json"), summary)
 
     return summary
-
-
-def random_search_reference(
-    exp11,
-    cfg: dict,
-    condition: dict,
-    seeds: list[int],
-    rng: np.random.Generator,
-    noise: bool = False,
-) -> dict:
-    samples = int(cfg["evolution"]["random_baseline_samples"])
-    genome_type = str(condition["genome_type"])
-    best = None
-
-    for _ in range(samples):
-        g = random_genome(genome_type, rng)
-        ev = evaluate_genome(exp11, cfg, condition, g, seeds, noise=noise)
-        if best is None or float(ev["fitness"]) > float(best["fitness"]):
-            best = ev
-            best["genome"] = g
-
-    return best
 
 
 def success_rates(eval_result: dict, cfg: dict) -> dict:
@@ -1081,7 +1114,6 @@ def main() -> int:
     root = repo_root()
     config_path = root / "config" / "tests" / "exp_14.yaml"
     cfg = read_yaml(str(config_path))
-    exp11 = load_exp11(root)
 
     meta = build_meta(
         params=cfg,
@@ -1099,7 +1131,16 @@ def main() -> int:
 
     audit = Audit.create(str(run_dir), meta)
     logger = Logger(sinks=[ConsoleSink(transient=False), audit])
-    logger.info(jline("run", cfg["name"], "start", run_dir=str(run_dir)))
+    logger.info(
+        jline(
+            "run",
+            cfg["name"],
+            "start",
+            run_dir=str(run_dir),
+            workers=int(cfg["parallel"]["workers"]),
+            backend=str(cfg["parallel"]["backend"]),
+        )
+    )
 
     conditions = list(cfg["conditions"])
     total_units = int(cfg["evolution"]["generations"]) * len(conditions)
@@ -1110,7 +1151,7 @@ def main() -> int:
 
     for condition in conditions:
         logger.info(jline("condition", str(condition["id"]), "start"))
-        rows.append(evolve_condition(exp11, cfg, condition, run_dir, logger, progress))
+        rows.append(evolve_condition(cfg, condition, root, run_dir, logger, progress))
 
     progress.finish()
 
@@ -1169,6 +1210,8 @@ def main() -> int:
         "condition_count": len(conditions),
         "population_size": int(cfg["evolution"]["population_size"]),
         "generations": int(cfg["evolution"]["generations"]),
+        "workers": int(cfg["parallel"]["workers"]),
+        "backend": str(cfg["parallel"]["backend"]),
         "train_seed_count": len(cfg["run"]["train_seeds"]),
         "test_seed_count": len(cfg["run"]["test_seeds"]),
         "evolution_summary_path": "evolution_summary.csv",
