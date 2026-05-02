@@ -1,0 +1,103 @@
+name: exp_04
+description: CIBO-Canvas local structural support test run
+
+run:
+  seeds: [42]
+  steps: 280
+  record_interval: 1
+
+canvas:
+  height: 32
+  width: 32
+
+target:
+  type: boundary
+  top: 8
+  left: 8
+  height: 16
+  width: 16
+  thickness: 1
+
+operator:
+  count: 96
+  radius: 1
+  move: random_walk
+  suppression: 0.5
+  repair: 0.5
+  support_threshold: 0.5
+  repair_threshold: 0.65
+  birth_threshold: 2
+  survive_min: 1
+  survive_max: 3
+  l2_memory_steps: 3
+
+trace:
+  duration: 8
+  decay: 0.875
+
+perturbation:
+  type: random_noise
+  time: 100
+  strength: 0.06
+  scope: all
+
+metrics:
+  saturation_threshold: 0.9
+  target_damage_threshold: 0.75
+  recovery_threshold: 0.8
+
+conditions:
+  - id: A
+    group: A
+    operator: l1s
+    support: none
+    action_space: write
+
+  - id: B
+    group: B
+    operator: l1ss
+    support: neighbor_count
+    action_space: write
+
+  - id: C
+    group: C
+    operator: l1ss
+    support: line_continuity
+    action_space: write
+
+  - id: D
+    group: D
+    operator: l1ss
+    support: boundary_consistency
+    action_space: write
+
+  - id: E
+    group: E
+    operator: l1ss
+    support: connected_component
+    action_space: write
+
+  - id: F
+    group: F
+    operator: l1ss
+    support: hybrid
+    action_space: write
+
+  - id: G
+    group: G
+    operator: l1sr
+    support: hybrid
+    action_space: write
+
+  - id: H
+    group: H
+    operator: l2ss
+    support: hybrid
+    action_space: write
+
+output:
+  root: data/tests/exp_04
+  save_initial_snapshot: true
+  save_perturbation_snapshot: true
+  save_final_snapshot: true
+  make_plot: true
