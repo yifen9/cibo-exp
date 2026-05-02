@@ -1,0 +1,218 @@
+name: exp_18
+description: CIBO-RD expressive compositional primitive redesign test run
+
+parallel:
+  workers: 16
+  backend: process
+
+run:
+  train_seeds: [1, 2, 3]
+  test_seeds: [11, 12, 13, 14, 15]
+  train_offsets: [-2, 0, 2]
+  test_offsets: [-3, 0, 3]
+  train_variants: [base, nearby]
+  test_variants: [base, nearby]
+  steps: 220
+  record_interval: 1
+
+canvas:
+  height: 32
+  width: 32
+
+operator:
+  count: 96
+  radius: 1
+  move: random_walk
+  suppression: 0.5
+  theta_preserve: 0.25
+
+trace:
+  duration: 8
+  decay: 0.875
+
+repair:
+  mechanism: sliding
+  theta_repair: 0.75
+  k: 4
+  m: 3
+  w_local: 0.35
+  w_bridge: 0.35
+  w_marker: 0.25
+  w_direction: 0.15
+  w_cost: 0.25
+
+evolution:
+  population_size: 16
+  generations: 20
+  elite_count: 4
+  mutation_rate: 0.10
+  tournament_size: 3
+  cvar_alpha: 0.25
+  discovery_margin: 0.10
+  random_chunk_size: 16
+
+fitness_weights:
+  connectivity: 2.0
+  stability: 1.0
+  cost: 0.5
+  outside: 1.0
+  false_corridor: 0.5
+  complexity: 0.05
+
+metrics:
+  strong_connectivity_threshold: 0.90
+  strong_cost_factor: 1.50
+  strict_connectivity_threshold: 0.95
+  strict_cost_factor: 1.25
+  strict_outside_open_rate: 0.05
+  robust_max_generalization_gap: 0.50
+  prior_leakage_threshold: 0.70
+  expressiveness_threshold: 0.60
+
+conditions:
+  - id: A_T1_P17
+    group: A
+    task: T1
+    task_distribution: T1_Dist
+    library: p17
+    ablation: none
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: C0
+    damage_time: 100
+    cut_length: 5
+    noise_stress: false
+
+  - id: B_T1_P18
+    group: B
+    task: T1
+    task_distribution: T1_Dist
+    library: p18
+    ablation: none
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: C1
+    damage_time: 100
+    cut_length: 5
+    noise_stress: false
+
+  - id: C_T1_P18_NO_GAP
+    group: C
+    task: T1
+    task_distribution: T1_Dist
+    library: p18
+    ablation: no_gap
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: C1
+    damage_time: 100
+    cut_length: 5
+    noise_stress: false
+
+  - id: D_T1_P18_NO_BAND
+    group: D
+    task: T1
+    task_distribution: T1_Dist
+    library: p18
+    ablation: no_band
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: C1
+    damage_time: 100
+    cut_length: 5
+    noise_stress: false
+
+  - id: E_T2_P17
+    group: E
+    task: T2
+    task_distribution: T2_Dist
+    library: p17
+    ablation: none
+    path_type: double_path
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: C0
+    damage_time: 100
+    cut_length: 7
+    noise_stress: false
+
+  - id: F_T2_P18
+    group: F
+    task: T2
+    task_distribution: T2_Dist
+    library: p18
+    ablation: none
+    path_type: double_path
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: C1
+    damage_time: 100
+    cut_length: 7
+    noise_stress: false
+
+  - id: G_T2_P18_NO_FRONTIER
+    group: G
+    task: T2
+    task_distribution: T2_Dist
+    library: p18
+    ablation: no_frontier
+    path_type: double_path
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: C1
+    damage_time: 100
+    cut_length: 7
+    noise_stress: false
+
+  - id: H_T2_P18_NO_DEADEND
+    group: H
+    task: T2
+    task_distribution: T2_Dist
+    library: p18
+    ablation: no_deadend
+    path_type: double_path
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: C1
+    damage_time: 100
+    cut_length: 7
+    noise_stress: false
+
+  - id: I_T2N_P18
+    group: I
+    task: T2
+    task_distribution: T2N_Dist
+    library: p18
+    ablation: none
+    path_type: double_path
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: C1
+    damage_time: 100
+    cut_length: 7
+    noise_stress: true
+    sigma: 0.10
+
+  - id: J_MIXED_P18
+    group: J
+    task: mixed
+    task_distribution: Mixed_T1_T2
+    library: p18
+    ablation: none
+    path_type: mixed
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: C1
+    damage_time: 100
+    cut_length: 6
+    noise_stress: false
+
+output:
+  root: data/tests/exp_18
+  save_best_genome: true
+  save_final_snapshot: false
+  make_plot: true
