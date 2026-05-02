@@ -1,0 +1,208 @@
+name: exp_13
+description: CIBO-FT weak signal and error correlation test run
+
+run:
+  seeds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  steps: 380
+  record_interval: 1
+
+canvas:
+  height: 32
+  width: 32
+
+operator:
+  count: 96
+  radius: 1
+  move: random_walk
+  suppression: 0.5
+  theta_preserve: 0.25
+
+trace:
+  duration: 8
+  decay: 0.875
+
+repair:
+  mechanism: sliding
+  theta_repair: 0.75
+  k: 4
+  m: 3
+  w_local: 0.35
+  w_bridge: 0.35
+  w_direction: 0.15
+  w_marker: 0.25
+  w_cost: 0.25
+
+metrics:
+  weak_connectivity_threshold: 0.90
+  strong_cost_factor: 1.50
+  strict_connectivity_threshold: 0.95
+  strict_cost_factor: 1.25
+  strict_outside_open_rate: 0.05
+
+conditions:
+  - id: A_C1_CLEAN
+    group: A
+    anchor: C1
+    path_class: F1
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    scaffold: width
+    damage_time: 120
+    cut_length: 5
+    width_radius: 1
+    sigma: 0.00
+    rho: 0.00
+    bias: 0.00
+    population: homogeneous
+
+  - id: B_C1_IND_010
+    group: B
+    anchor: C1
+    path_class: F1
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    scaffold: width
+    damage_time: 120
+    cut_length: 5
+    width_radius: 1
+    sigma: 0.10
+    rho: 0.00
+    bias: 0.00
+    population: homogeneous
+
+  - id: C_C1_IND_020
+    group: C
+    anchor: C1
+    path_class: F1
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    scaffold: width
+    damage_time: 120
+    cut_length: 5
+    width_radius: 1
+    sigma: 0.20
+    rho: 0.00
+    bias: 0.00
+    population: homogeneous
+
+  - id: D_C1_COR_010_075
+    group: D
+    anchor: C1
+    path_class: F1
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    scaffold: width
+    damage_time: 120
+    cut_length: 5
+    width_radius: 1
+    sigma: 0.10
+    rho: 0.75
+    bias: 0.00
+    population: homogeneous
+
+  - id: E_C1_COR_020_075
+    group: E
+    anchor: C1
+    path_class: F1
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    scaffold: width
+    damage_time: 120
+    cut_length: 5
+    width_radius: 1
+    sigma: 0.20
+    rho: 0.75
+    bias: 0.00
+    population: homogeneous
+
+  - id: F_C2_CLEAN
+    group: F
+    anchor: C2
+    path_class: F3
+    path_type: double_path
+    perturbation_type: bridge_cut
+    scaffold: combined
+    damage_time: 120
+    cut_length: 7
+    width_radius: 1
+    marker_radius: 2
+    marker_strength: 1.0
+    sigma: 0.00
+    rho: 0.00
+    bias: 0.00
+    population: homogeneous
+
+  - id: G_C2_IND_010
+    group: G
+    anchor: C2
+    path_class: F3
+    path_type: double_path
+    perturbation_type: bridge_cut
+    scaffold: combined
+    damage_time: 120
+    cut_length: 7
+    width_radius: 1
+    marker_radius: 2
+    marker_strength: 1.0
+    sigma: 0.10
+    rho: 0.00
+    bias: 0.00
+    population: homogeneous
+
+  - id: H_C2_COR_020_075
+    group: H
+    anchor: C2
+    path_class: F3
+    path_type: double_path
+    perturbation_type: bridge_cut
+    scaffold: combined
+    damage_time: 120
+    cut_length: 7
+    width_radius: 1
+    marker_radius: 2
+    marker_strength: 1.0
+    sigma: 0.20
+    rho: 0.75
+    bias: 0.00
+    population: homogeneous
+
+  - id: I_C2_COR_020_075_HET
+    group: I
+    anchor: C2
+    path_class: F3
+    path_type: double_path
+    perturbation_type: bridge_cut
+    scaffold: combined
+    damage_time: 120
+    cut_length: 7
+    width_radius: 1
+    marker_radius: 2
+    marker_strength: 1.0
+    sigma: 0.20
+    rho: 0.75
+    bias: 0.00
+    population: mixed_heterogeneous
+    threshold_jitter: 0.06
+    sensitivity_jitter: 0.12
+
+  - id: J_C2_COR_020_100
+    group: J
+    anchor: C2
+    path_class: F3
+    path_type: double_path
+    perturbation_type: bridge_cut
+    scaffold: combined
+    damage_time: 120
+    cut_length: 7
+    width_radius: 1
+    marker_radius: 2
+    marker_strength: 1.0
+    sigma: 0.20
+    rho: 1.00
+    bias: 0.00
+    population: homogeneous
+
+output:
+  root: data/tests/exp_13
+  save_final_snapshot: false
+  make_plot: true

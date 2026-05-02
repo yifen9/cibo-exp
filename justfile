@@ -95,3 +95,9 @@ s-t-exp-11:
 
 s-t-exp-12:
     uv run python scripts/tests/exp_12.py
+
+s-t-exp-13:
+    uv run python scripts/tests/exp_13.py
+
+s-t-exp-14:
+    uv run python scripts/tests/exp_14.py
