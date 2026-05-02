@@ -1,0 +1,227 @@
+name: exp_07
+description: CIBO-Canvas sliding-window temporal repair robustness test run
+
+run:
+  seeds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  steps: 320
+  record_interval: 1
+
+canvas:
+  height: 32
+  width: 32
+
+target:
+  type: boundary
+  top: 8
+  left: 8
+  height: 16
+  width: 16
+  thickness: 1
+
+operator:
+  count: 96
+  radius: 1
+  move: random_walk
+  support: hybrid
+  suppression: 0.5
+  theta_preserve: 0.25
+  repair_budget_ratio: 0.12
+  l2_memory_steps: 3
+
+trace:
+  duration: 8
+  decay: 0.875
+
+base_perturbation:
+  noise_time: 80
+  noise_strength: 0.03
+  noise_scope: all
+  gap_time: 140
+  gap_length: 8
+  gap_side: top
+
+metrics:
+  saturation_threshold: 0.9
+  target_damage_threshold: 0.75
+  recovery_threshold: 0.8
+  strong_tpr_threshold: 0.90
+  strong_fpr_threshold: 0.20
+  strict_tpr_threshold: 0.95
+  strict_fpr_threshold: 0.10
+
+conditions:
+  - id: A075W34
+    group: A
+    purpose: baseline_replication
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.75
+    k: 4
+    m: 3
+    gamma: 0.0
+    budget: false
+    noise_strength: 0.03
+    gap_length: 8
+
+  - id: B070W34
+    group: B
+    purpose: lower_threshold
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.70
+    k: 4
+    m: 3
+    gamma: 0.0
+    budget: false
+    noise_strength: 0.03
+    gap_length: 8
+
+  - id: B072W34
+    group: B
+    purpose: lower_threshold
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.72
+    k: 4
+    m: 3
+    gamma: 0.0
+    budget: false
+    noise_strength: 0.03
+    gap_length: 8
+
+  - id: C078W34
+    group: C
+    purpose: higher_threshold
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.78
+    k: 4
+    m: 3
+    gamma: 0.0
+    budget: false
+    noise_strength: 0.03
+    gap_length: 8
+
+  - id: C080W34
+    group: C
+    purpose: higher_threshold
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.80
+    k: 4
+    m: 3
+    gamma: 0.0
+    budget: false
+    noise_strength: 0.03
+    gap_length: 8
+
+  - id: D075W23
+    group: D
+    purpose: looser_temporal_gate
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.75
+    k: 3
+    m: 2
+    gamma: 0.0
+    budget: false
+    noise_strength: 0.03
+    gap_length: 8
+
+  - id: E075W45
+    group: E
+    purpose: stricter_temporal_gate
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.75
+    k: 5
+    m: 4
+    gamma: 0.0
+    budget: false
+    noise_strength: 0.03
+    gap_length: 8
+
+  - id: P075W34N000
+    group: P
+    purpose: no_noise
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.75
+    k: 4
+    m: 3
+    gamma: 0.0
+    budget: false
+    noise_strength: 0.00
+    gap_length: 8
+
+  - id: P075W34N010
+    group: P
+    purpose: low_noise
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.75
+    k: 4
+    m: 3
+    gamma: 0.0
+    budget: false
+    noise_strength: 0.01
+    gap_length: 8
+
+  - id: P075W34N050
+    group: P
+    purpose: high_noise
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.75
+    k: 4
+    m: 3
+    gamma: 0.0
+    budget: false
+    noise_strength: 0.05
+    gap_length: 8
+
+  - id: G075W34L04
+    group: G
+    purpose: small_gap
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.75
+    k: 4
+    m: 3
+    gamma: 0.0
+    budget: false
+    noise_strength: 0.03
+    gap_length: 4
+
+  - id: G075W34L12
+    group: G
+    purpose: medium_large_gap
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.75
+    k: 4
+    m: 3
+    gamma: 0.0
+    budget: false
+    noise_strength: 0.03
+    gap_length: 12
+
+  - id: G075W34L16
+    group: G
+    purpose: large_gap
+    operator: l1sgt
+    mechanism: sliding
+    theta_repair: 0.75
+    k: 4
+    m: 3
+    gamma: 0.0
+    budget: false
+    noise_strength: 0.03
+    gap_length: 16
+
+output:
+  root: data/tests/exp_07
+  save_initial_snapshot: false
+  save_perturbation_snapshot: false
+  save_final_snapshot: false
+  make_plot: true

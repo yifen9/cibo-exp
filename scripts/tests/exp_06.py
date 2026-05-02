@@ -636,14 +636,6 @@ def run_condition(
 
     target = make_target(height, width, cfg["target"])
     canvas = target.copy()
-    trace = np.zeros((height, width), dtype=np.float64)
-    consecutive = np.zeros((height, width), dtype=np.int32)
-    history = np.zeros((height, width, 4), dtype=np.uint8)
-    decayed = np.zeros((height, width), dtype=np.float64)
-    memory = np.zeros(int(cfg["operator"]["count"]), dtype=np.int32)
-
-    operator_count = int(cfg["operator"]["count"])
-    operators = init_operators(operator_count, height, width, rng)
 
     mechanism = str(condition["mechanism"])
     operator_type = str(condition["operator"])
@@ -653,6 +645,16 @@ def run_condition(
     m = int(condition["m"])
     gamma = float(condition["gamma"])
     use_budget = bool(condition["budget"])
+
+    trace = np.zeros((height, width), dtype=np.float64)
+    consecutive = np.zeros((height, width), dtype=np.int32)
+    history = np.zeros((height, width, max(1, k)), dtype=np.uint8)
+    decayed = np.zeros((height, width), dtype=np.float64)
+    memory = np.zeros(int(cfg["operator"]["count"]), dtype=np.int32)
+
+    operator_count = int(cfg["operator"]["count"])
+    operators = init_operators(operator_count, height, width, rng)
+
     perturbation_times = [int(p["time"]) for p in cfg["perturbation"]["schedule"]]
 
     events = []
