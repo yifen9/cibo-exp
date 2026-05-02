@@ -1,0 +1,113 @@
+name: exp_11
+description: CIBO-FT functional path repair test run
+
+run:
+  seeds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  steps: 360
+  record_interval: 1
+
+canvas:
+  height: 32
+  width: 32
+
+operator:
+  count: 96
+  radius: 1
+  move: random_walk
+  suppression: 0.5
+  theta_preserve: 0.25
+
+trace:
+  duration: 8
+  decay: 0.875
+
+repair:
+  mechanism: sliding
+  theta_repair: 0.75
+  k: 4
+  m: 3
+  alpha: 0.45
+
+metrics:
+  weak_connectivity_threshold: 0.90
+  strong_cost_factor: 1.50
+  strict_connectivity_threshold: 0.95
+  strict_cost_factor: 1.25
+
+conditions:
+  - id: A_F1_Q1
+    group: A
+    path_class: F1
+    path_type: single_narrow
+    perturbation_type: random_path_deletion
+    damage_time: 120
+    delete_fraction: 0.20
+
+  - id: B_F1_Q2
+    group: B
+    path_class: F1
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    damage_time: 120
+    cut_length: 5
+
+  - id: C_F2_Q2
+    group: C
+    path_class: F2
+    path_type: thick_corridor
+    perturbation_type: bridge_cut
+    damage_time: 120
+    cut_length: 7
+
+  - id: D_F3_Q2
+    group: D
+    path_class: F3
+    path_type: double_path
+    perturbation_type: bridge_cut
+    damage_time: 120
+    cut_length: 7
+
+  - id: E_F4_Q5
+    group: E
+    path_class: F4
+    path_type: braided_path
+    perturbation_type: mixed_path_damage_outside_opening
+    damage_time: 120
+    delete_fraction: 0.15
+    outside_fraction: 0.04
+
+  - id: F_F5_Q5
+    group: F
+    path_class: F5
+    path_type: maze_like_path
+    perturbation_type: mixed_path_damage_outside_opening
+    damage_time: 120
+    delete_fraction: 0.15
+    outside_fraction: 0.04
+
+  - id: G_F6_Q1
+    group: G
+    path_class: F6
+    path_type: sparse_stepping_stone
+    perturbation_type: random_path_deletion
+    damage_time: 120
+    delete_fraction: 0.20
+
+  - id: H_F3_Q6
+    group: H
+    path_class: F3
+    path_type: double_path
+    perturbation_type: drifting_blockage
+    drifting_times: [80, 120, 160, 200, 240]
+    block_size: 5
+    drift_centers:
+      - [8, 10]
+      - [10, 14]
+      - [12, 18]
+      - [15, 21]
+      - [18, 24]
+
+output:
+  root: data/tests/exp_11
+  save_final_snapshot: false
+  make_plot: true
