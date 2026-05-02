@@ -1,0 +1,155 @@
+name: exp_05
+description: CIBO-Canvas selective support and repair gating test run
+
+run:
+  seeds: [42]
+  steps: 300
+  record_interval: 1
+
+canvas:
+  height: 32
+  width: 32
+
+target:
+  type: boundary
+  top: 8
+  left: 8
+  height: 16
+  width: 16
+  thickness: 1
+
+operator:
+  count: 96
+  radius: 1
+  move: random_walk
+  support: hybrid
+  suppression: 0.5
+  repair_budget_ratio: 0.15
+  temporal_confirm_steps: 2
+  l2_memory_steps: 3
+
+trace:
+  duration: 8
+  decay: 0.875
+
+perturbation:
+  schedule:
+    - type: random_noise
+      time: 80
+      strength: 0.04
+      scope: all
+    - type: local_gap_attack
+      time: 140
+      length: 8
+      side: top
+
+metrics:
+  saturation_threshold: 0.9
+  target_damage_threshold: 0.75
+  recovery_threshold: 0.8
+
+conditions:
+  - id: A
+    group: A
+    operator: l1ss
+    gate: none
+    theta_preserve: 0.25
+    theta_repair: 0.50
+
+  - id: B050
+    group: B
+    operator: l1sg
+    gate: dual
+    theta_preserve: 0.25
+    theta_repair: 0.50
+
+  - id: B075
+    group: B
+    operator: l1sg
+    gate: dual
+    theta_preserve: 0.25
+    theta_repair: 0.75
+
+  - id: B090
+    group: B
+    operator: l1sg
+    gate: dual
+    theta_preserve: 0.25
+    theta_repair: 0.90
+
+  - id: C075
+    group: C
+    operator: l1sgb
+    gate: budget
+    theta_preserve: 0.25
+    theta_repair: 0.75
+
+  - id: C090
+    group: C
+    operator: l1sgb
+    gate: budget
+    theta_preserve: 0.25
+    theta_repair: 0.90
+
+  - id: D075
+    group: D
+    operator: l1sgt
+    gate: temporal
+    theta_preserve: 0.25
+    theta_repair: 0.75
+
+  - id: D090
+    group: D
+    operator: l1sgt
+    gate: temporal
+    theta_preserve: 0.25
+    theta_repair: 0.90
+
+  - id: E075
+    group: E
+    operator: l1sgg
+    gate: gap
+    theta_preserve: 0.25
+    theta_repair: 0.75
+
+  - id: E090
+    group: E
+    operator: l1sgg
+    gate: gap
+    theta_preserve: 0.25
+    theta_repair: 0.90
+
+  - id: F075
+    group: F
+    operator: l1sgc
+    gate: combined
+    theta_preserve: 0.25
+    theta_repair: 0.75
+
+  - id: F090
+    group: F
+    operator: l1sgc
+    gate: combined
+    theta_preserve: 0.25
+    theta_repair: 0.90
+
+  - id: G075
+    group: G
+    operator: l2sgc
+    gate: combined
+    theta_preserve: 0.25
+    theta_repair: 0.75
+
+  - id: G090
+    group: G
+    operator: l2sgc
+    gate: combined
+    theta_preserve: 0.25
+    theta_repair: 0.90
+
+output:
+  root: data/tests/exp_05
+  save_initial_snapshot: true
+  save_perturbation_snapshot: true
+  save_final_snapshot: true
+  make_plot: true

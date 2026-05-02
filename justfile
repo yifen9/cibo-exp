@@ -71,3 +71,6 @@ s-t-exp-03:
 
 s-t-exp-04:
     uv run python scripts/tests/exp_04.py
+
+s-t-exp-05:
+    uv run python scripts/tests/exp_05.py
