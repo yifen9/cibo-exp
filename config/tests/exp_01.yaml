@@ -1,0 +1,34 @@
+name: exp_01
+description: CIBO-Canvas test run
+run:
+  seed: 42
+  steps: 200
+  record_interval: 1
+canvas:
+  height: 32
+  width: 32
+target:
+  type: horizontal_line
+  row: 16
+  thickness: 1
+operator:
+  type: reactive_l1
+  count: 64
+  radius: 1
+  birth_threshold: 2
+  death_threshold: 0
+  move: random_walk
+trace:
+  mode: medium
+  duration: 8
+perturbation:
+  type: random_noise
+  time: 100
+  strength: 0.08
+  scope: all
+output:
+  root: data/tests/exp_01
+  save_initial_snapshot: true
+  save_perturbation_snapshot: true
+  save_final_snapshot: true
+  make_plot: true

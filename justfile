@@ -59,3 +59,6 @@ docs-build:
 
 docs-serve:
     uv run pdoc --math -p 8080 cibo_exp
+
+s-t-exp-01:
+    uv run python scripts/tests/exp_01.py

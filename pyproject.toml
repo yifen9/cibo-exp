@@ -4,6 +4,8 @@ version = "0.0.0"
 requires-python = ">=3.11"
 dependencies = [
     "cibo-pycore",
+    "matplotlib>=3.10.9",
+    "numpy>=2.4.4",
 ]
 
 [dependency-groups]
