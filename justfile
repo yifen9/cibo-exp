@@ -101,3 +101,6 @@ s-t-exp-13:
 
 s-t-exp-14:
     uv run python scripts/tests/exp_14.py
+
+s-t-exp-15:
+    uv run python scripts/tests/exp_15.py

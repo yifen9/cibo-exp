@@ -1,0 +1,139 @@
+name: exp_15
+description: CIBO-ED fitness shaping and evolutionary generalization test run
+
+parallel:
+  workers: 16
+  backend: process
+
+run:
+  train_seeds: [1, 2, 3]
+  test_seeds: [11, 12, 13, 14, 15]
+  train_offsets: [-2, 0, 2]
+  test_offsets: [-3, 0, 3]
+  steps: 220
+  record_interval: 1
+
+canvas:
+  height: 32
+  width: 32
+
+operator:
+  count: 96
+  radius: 1
+  move: random_walk
+  suppression: 0.5
+  theta_preserve: 0.25
+
+trace:
+  duration: 8
+  decay: 0.875
+
+repair:
+  mechanism: sliding
+  theta_repair: 0.75
+  k: 4
+  m: 3
+  w_local: 0.35
+  w_bridge: 0.35
+  w_marker: 0.25
+  w_direction: 0.15
+  w_cost: 0.25
+
+evolution:
+  population_size: 20
+  generations: 24
+  elite_count: 4
+  mutation_rate: 0.10
+  tournament_size: 3
+  random_baseline_samples: 16
+  discovery_margin: 0.08
+
+fitness_weights:
+  connectivity: 2.0
+  stability: 1.0
+  cost: 0.5
+  outside: 1.0
+  false_corridor: 0.5
+  complexity: 0.15
+  variance: 0.5
+
+metrics:
+  strong_connectivity_threshold: 0.90
+  strong_cost_factor: 1.50
+  strict_connectivity_threshold: 0.95
+  strict_cost_factor: 1.25
+  strict_outside_open_rate: 0.05
+
+conditions:
+  - id: A_T1_F0_R0
+    group: A
+    task: T1
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    fitness_family: F0
+    representation: R0
+    damage_time: 100
+    cut_length: 5
+    noise_stress: false
+
+  - id: B_T1_F3_R0
+    group: B
+    task: T1
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    fitness_family: F3
+    representation: R0
+    damage_time: 100
+    cut_length: 5
+    noise_stress: false
+
+  - id: C_T1_F3_R1
+    group: C
+    task: T1
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    fitness_family: F3
+    representation: R1
+    damage_time: 100
+    cut_length: 5
+    noise_stress: false
+
+  - id: D_T2_F1_R3
+    group: D
+    task: T2
+    path_type: double_path
+    perturbation_type: bridge_cut
+    fitness_family: F1
+    representation: R3
+    damage_time: 100
+    cut_length: 7
+    noise_stress: false
+
+  - id: E_T2_F3_R3
+    group: E
+    task: T2
+    path_type: double_path
+    perturbation_type: bridge_cut
+    fitness_family: F3
+    representation: R3
+    damage_time: 100
+    cut_length: 7
+    noise_stress: false
+
+  - id: F_T2_F3_R3_NOISE
+    group: F
+    task: T2
+    path_type: double_path
+    perturbation_type: bridge_cut
+    fitness_family: F3
+    representation: R3
+    damage_time: 100
+    cut_length: 7
+    noise_stress: true
+    sigma: 0.10
+
+output:
+  root: data/tests/exp_15
+  save_best_genome: true
+  save_final_snapshot: false
+  make_plot: true
