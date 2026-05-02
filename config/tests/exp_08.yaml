@@ -1,0 +1,93 @@
+name: exp_08
+description: CIBO-GT target morphology generalization test run
+
+run:
+  seeds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  steps: 320
+  record_interval: 1
+
+canvas:
+  height: 32
+  width: 32
+
+operator:
+  count: 96
+  radius: 1
+  move: random_walk
+  support: hybrid
+  suppression: 0.5
+  theta_preserve: 0.25
+  repair_budget_ratio: 0.12
+  l2_memory_steps: 3
+
+trace:
+  duration: 8
+  decay: 0.875
+
+repair:
+  operator: l1sgt
+  mechanism: sliding
+  theta_repair: 0.75
+  k: 4
+  m: 3
+  gamma: 0.0
+  budget: false
+
+perturbation:
+  noise_time: 80
+  noise_strength: 0.03
+  noise_scope: all
+  damage_time: 140
+  damage_fraction: 0.20
+
+metrics:
+  saturation_threshold: 0.9
+  target_damage_threshold: 0.75
+  recovery_threshold: 0.8
+  strong_tpr_threshold: 0.90
+  strong_fpr_threshold: 0.20
+  strict_tpr_threshold: 0.95
+  strict_fpr_threshold: 0.10
+
+morphologies:
+  - id: M1_LINE
+    class: M1
+    type: line
+    coherence_group: high
+
+  - id: M2_BOUNDARY
+    class: M2
+    type: boundary
+    coherence_group: high
+
+  - id: M3_BLOB
+    class: M3
+    type: connected_blob
+    coherence_group: medium
+
+  - id: M4_GLYPH
+    class: M4
+    type: irregular_glyph
+    coherence_group: medium
+
+  - id: M5_MAZE
+    class: M5
+    type: maze
+    coherence_group: medium
+
+  - id: M6_COMPONENTS
+    class: M6
+    type: disconnected_components
+    coherence_group: low
+
+  - id: M7_SPARSE
+    class: M7
+    type: sparse_dots
+    coherence_group: low
+
+output:
+  root: data/tests/exp_08
+  save_initial_snapshot: false
+  save_perturbation_snapshot: false
+  save_final_snapshot: false
+  make_plot: true

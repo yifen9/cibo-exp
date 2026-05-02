@@ -80,3 +80,6 @@ s-t-exp-06:
 
 s-t-exp-07:
     uv run python scripts/tests/exp_07.py
+
+s-t-exp-08:
+    uv run python scripts/tests/exp_08.py
