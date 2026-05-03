@@ -1,0 +1,258 @@
+name: exp_19
+description: CIBO-RD grammar-based scaffold generation compact test run
+
+parallel:
+  workers: 16
+  backend: process
+
+run:
+  train_seeds: [1, 2]
+  test_seeds: [11, 12, 13]
+  train_offsets: [-2, 2]
+  test_offsets: [-3, 0, 3]
+  train_variants: [base]
+  test_variants: [base, nearby]
+  steps: 120
+  record_interval: 1
+
+canvas:
+  height: 32
+  width: 32
+
+operator:
+  count: 56
+  radius: 1
+  move: random_walk
+  suppression: 0.5
+  theta_preserve: 0.25
+
+trace:
+  duration: 8
+  decay: 0.875
+
+repair:
+  mechanism: sliding
+  theta_repair: 0.75
+  k: 4
+  m: 3
+  w_local: 0.35
+  w_bridge: 0.35
+  w_marker: 0.25
+  w_direction: 0.15
+  w_cost: 0.25
+  w_mask: 0.40
+  w_trace: 0.25
+  w_priority: 0.35
+  w_budget: 0.30
+
+grammar:
+  min_program_length: 2
+  max_program_length: 6
+  max_radius: 1
+  mask_decay_min: 0.50
+  mask_decay_max: 0.98
+  trace_decay_min: 0.50
+  trace_decay_max: 0.98
+  priority_decay_min: 0.50
+  priority_decay_max: 0.98
+  trace_refresh_min: 0.25
+  trace_refresh_max: 1.00
+  budget_limit_min: 1.05
+  budget_limit_max: 1.70
+  evidence_gain_min: 0.60
+  evidence_gain_max: 1.40
+
+evolution:
+  population_size: 10
+  generations: 12
+  elite_count: 2
+  mutation_rate: 0.10
+  tournament_size: 3
+  cvar_alpha: 0.25
+  discovery_margin: 0.10
+  random_chunk_size: 10
+
+fitness_weights:
+  connectivity: 2.0
+  stability: 1.0
+  cost: 0.5
+  outside: 1.0
+  false_corridor: 0.5
+  complexity: 0.05
+
+metrics:
+  strong_connectivity_threshold: 0.90
+  strong_cost_factor: 1.50
+  strict_connectivity_threshold: 0.95
+  strict_cost_factor: 1.25
+  strict_outside_open_rate: 0.05
+  robust_max_generalization_gap: 0.50
+  prior_leakage_threshold: 0.70
+  interpretability_threshold: 0.50
+
+conditions:
+  - id: A_T1_P18
+    group: A
+    task: T1
+    task_distribution: T1_Dist
+    library: p18
+    ablation: none
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: C1
+    search_mode: p18_evolved
+    damage_time: 60
+    cut_length: 5
+    noise_stress: false
+    sigma: 0.00
+
+  - id: B_T1_GRAMMAR_RANDOM
+    group: B
+    task: T1
+    task_distribution: T1_Dist
+    library: grammar
+    ablation: none
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: G0
+    search_mode: grammar_random
+    damage_time: 60
+    cut_length: 5
+    noise_stress: false
+    sigma: 0.00
+
+  - id: C_T1_GRAMMAR_EVOLVED
+    group: C
+    task: T1
+    task_distribution: T1_Dist
+    library: grammar
+    ablation: none
+    path_type: single_narrow
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: G0
+    search_mode: grammar_evolved
+    damage_time: 60
+    cut_length: 5
+    noise_stress: false
+    sigma: 0.00
+
+  - id: D_T2_P18
+    group: D
+    task: T2
+    task_distribution: T2_Dist
+    library: p18
+    ablation: none
+    path_type: double_path
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: C1
+    search_mode: p18_evolved
+    damage_time: 60
+    cut_length: 7
+    noise_stress: false
+    sigma: 0.00
+
+  - id: E_T2_GRAMMAR_RANDOM
+    group: E
+    task: T2
+    task_distribution: T2_Dist
+    library: grammar
+    ablation: none
+    path_type: double_path
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: G0
+    search_mode: grammar_random
+    damage_time: 60
+    cut_length: 7
+    noise_stress: false
+    sigma: 0.00
+
+  - id: F_T2_GRAMMAR_EVOLVED
+    group: F
+    task: T2
+    task_distribution: T2_Dist
+    library: grammar
+    ablation: none
+    path_type: double_path
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: G0
+    search_mode: grammar_evolved
+    damage_time: 60
+    cut_length: 7
+    noise_stress: false
+    sigma: 0.00
+
+  - id: G_T2N_GRAMMAR_RANDOM
+    group: G
+    task: T2
+    task_distribution: T2N_Dist
+    library: grammar
+    ablation: none
+    path_type: double_path
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: G0
+    search_mode: grammar_random
+    damage_time: 60
+    cut_length: 7
+    noise_stress: true
+    sigma: 0.10
+
+  - id: H_T2N_GRAMMAR_EVOLVED
+    group: H
+    task: T2
+    task_distribution: T2N_Dist
+    library: grammar
+    ablation: none
+    path_type: double_path
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: G0
+    search_mode: grammar_evolved
+    damage_time: 60
+    cut_length: 7
+    noise_stress: true
+    sigma: 0.10
+
+  - id: I_MIXED_GRAMMAR_EVOLVED
+    group: I
+    task: mixed
+    task_distribution: Mixed_T1_T2
+    library: grammar
+    ablation: none
+    path_type: mixed
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: G0
+    search_mode: grammar_evolved
+    damage_time: 60
+    cut_length: 6
+    noise_stress: false
+    sigma: 0.00
+
+  - id: J_MIXED_NOISY_GRAMMAR_EVOLVED
+    group: J
+    task: mixed
+    task_distribution: Mixed_T1_T2N
+    library: grammar
+    ablation: none
+    path_type: mixed
+    perturbation_type: bridge_cut
+    fitness_family: cvar
+    representation: G0
+    search_mode: grammar_evolved
+    damage_time: 60
+    cut_length: 6
+    noise_stress: true
+    sigma: 0.10
+
+output:
+  root: data/tests/exp_19
+  save_best_genome: true
+  save_final_snapshot: false
+  make_plot: true
